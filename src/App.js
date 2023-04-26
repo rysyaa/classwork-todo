@@ -1,25 +1,50 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Header from './components/Header'
+import ProductList from './components/ProductList'
+import AddForm from './components/AddForm'
+import EditForm from './components/EditForm'
+import Details from './components/Details'
+import axios from 'axios';
 
-function App() {
+const App = () => {
+  const API = "http://localhost:8000/product";
+
+// ! для зранения полученых продуктов с API
+const [products, setProducts] = useState([]);
+
+
+  // ! create (post request)
+  function addProduct(newProduct){
+    axios.post(API, newProduct)
+  }
+
+  async function getProducts(){
+    let result = await axios.get(API);
+    setProducts(result.data);
+  }
+
+  // ! delete 
+  async function deleteProduct(id){
+    await axios.delete(`${API}/${id}`)
+    getProducts()
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <BrowserRouter>
+      <Header />
+      <Routes>
+        <Route path='/' element={<ProductList deleteProduct={deleteProduct} products={products} getProducts={getProducts} />}/>
+        <Route path='/add' element={<AddForm addProduct={addProduct} />}/>
+        <Route path='/edit/:id' element={<EditForm />}/>
+        <Route path='/details' element={<Details />}/>
+        <Route path='/contacts' element={<h1>Contacts</h1>}/>
+      </Routes>
+      </BrowserRouter>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
